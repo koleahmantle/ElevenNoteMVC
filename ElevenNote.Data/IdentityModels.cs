@@ -1,4 +1,6 @@
 ﻿using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration;
+using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -18,6 +20,7 @@ namespace ElevenNote.Data
         }
     }
 
+
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
@@ -28,6 +31,35 @@ namespace ElevenNote.Data
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
+        }
+
+        public DbSet<Note> Notes { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder
+                 .Conventions
+                 .Remove <PluralizingTableNameConvention> ();
+            modelBuilder
+                .Configurations
+                .Add(new IdentityUserLoginconfiguration())
+                .Add(new IdentityUserRoleConfiguration());
+        }
+
+        public class IdentityUserLoginconfiguration : EntityTypeConfiguration<IdentityUserLogin>
+        {
+            public IdentityUserLoginconfiguration()
+            {
+                HasKey(iul => iul.UserId);
+            }
+        }
+
+        public class IdentityUserRoleConfiguration : EntityTypeConfiguration<IdentityUserLogin>
+        {
+            public IdentityUserRoleConfiguration()
+            {
+                HasKey(iur => iur.UserId);
+            } 
         }
     }
 }
